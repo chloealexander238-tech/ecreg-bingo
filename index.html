@@ -13,60 +13,55 @@
     --darkgreen:#064D42;
     --blue:#0032A0;
     --light:#E5E1E6;
-    --white:#ffffff;
 }
 
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
+    box-sizing:border-box;
 }
 
 body{
-    font-family:Arial, Helvetica, sans-serif;
     background:var(--light);
+    font-family:Arial, sans-serif;
     color:var(--darkgreen);
-    padding:16px;
+    padding:12px;
 }
 
 .container{
     max-width:700px;
-    margin:0 auto;
+    margin:auto;
 }
 
 h1{
     text-align:center;
     color:var(--darkgreen);
-    margin-bottom:10px;
+    margin-bottom:8px;
     font-size:2rem;
 }
 
 .subtitle{
     text-align:center;
     margin-bottom:20px;
-    font-size:1rem;
+    line-height:1.4;
 }
 
 #bingoBanner{
     display:none;
     background:var(--blue);
     color:white;
+    text-align:center;
     padding:16px;
     border-radius:12px;
-    text-align:center;
+    font-size:1.5rem;
     font-weight:bold;
-    font-size:1.4rem;
-    margin-bottom:20px;
-    animation:pulse .9s infinite alternate;
+    margin-bottom:16px;
+    animation:pulse 1s infinite alternate;
 }
 
 @keyframes pulse{
-    from{
-        transform:scale(1);
-    }
-    to{
-        transform:scale(1.03);
-    }
+    from{transform:scale(1);}
+    to{transform:scale(1.03);}
 }
 
 .board{
@@ -79,17 +74,17 @@ h1{
     background:white;
     border:2px solid var(--darkgreen);
     border-radius:10px;
-    min-height:82px;
+    min-height:80px;
     display:flex;
-    align-items:center;
     justify-content:center;
+    align-items:center;
     text-align:center;
     font-weight:700;
-    font-size:.82rem;
-    padding:8px;
+    padding:6px;
     cursor:pointer;
-    user-select:none;
     transition:.2s;
+    user-select:none;
+    word-break:break-word;
 }
 
 .square.selected{
@@ -100,43 +95,42 @@ h1{
 
 .square.winning{
     background:var(--blue) !important;
-    color:white !important;
     border-color:var(--blue) !important;
+    color:white !important;
 }
 
 @media(max-width:600px){
 
-    body{
-        padding:10px;
-    }
-
     .square{
-        min-height:70px;
-        font-size:.72rem;
-        padding:6px;
+        min-height:68px;
+        font-size:0.7rem;
     }
 
     h1{
-        font-size:1.6rem;
+        font-size:1.7rem;
     }
+
+    .subtitle{
+        font-size:0.9rem;
+    }
+
 }
 
 .confetti{
     position:fixed;
     width:10px;
     height:10px;
-    top:-10px;
+    top:-20px;
     pointer-events:none;
-    animation:fall 3.5s linear forwards;
+    animation:fall 4s linear forwards;
 }
 
 @keyframes fall{
     from{
         transform:translateY(-20px) rotate(0deg);
     }
-
     to{
-        transform:translateY(120vh) rotate(900deg);
+        transform:translateY(120vh) rotate(720deg);
     }
 }
 
@@ -150,7 +144,8 @@ h1{
     <h1>Economic Regulation Bingo</h1>
 
     <p class="subtitle">
-        Tap an acronym when it is mentioned.
+        Mark off acronyms as they are discussed.<br>
+        Complete a row, column or diagonal to get Bingo.
     </p>
 
     <div id="bingoBanner">
@@ -163,61 +158,43 @@ h1{
 
 <script>
 
-const STORAGE_KEY = "economic-regulation-bingo";
+const STORAGE_KEY = "econ-reg-bingo-v1";
 
-const acronyms = [...new Set([
+const TERMS = [
 
 "GN26",
 "WAPC",
 "EN29",
 "FTA",
 "GNT",
+
 "PTRM",
 "WACC",
 "STPIS",
 "NEM",
 "AEMO",
+
 "DNSP",
 "AIO",
 "CESS",
 "NER",
 "DMIS",
+
 "RAB",
 "EBSS",
 "RFM",
 "NGR",
 "ECRC",
+
 "CCP",
 "NZ45",
 "OPEX",
 "CAPEX",
-"CAB",
-"ENA",
-"IEP",
-"NGL",
-"NGO",
-"RIN",
-"TVM",
-"RSA",
-"RSP",
-"SAIDI",
-"NEO",
-"TSS",
-"SAIFI",
-"EFM",
-"F&A",
-"CAM",
-"CPI",
-"ESOO",
-"FOC",
-"ICRC",
-"DMO",
-"SSO",
-"UNFT"
+"CAB"
 
-])];
+];
 
-let alreadyCelebrated = false;
+let celebrationShown = false;
 
 function shuffle(array){
 
@@ -233,37 +210,14 @@ function shuffle(array){
     return arr;
 }
 
-function createCard(){
-
-    const guaranteedRow = [
-        "GN26",
-        "WAPC",
-        "EN29",
-        "FTA",
-        "GNT"
-    ];
-
-    const remaining = acronyms.filter(
-        item => !guaranteedRow.includes(item)
-    );
-
-    const random = shuffle(remaining);
-
-    const card = [
-
-        ...random.slice(0,5),
-        ...random.slice(5,10),
-
-        ...guaranteedRow,
-
-        ...random.slice(10,15),
-        ...random.slice(15,20)
-
-    ];
+function generateCard(){
 
     const data = {
-        card,
-        selected: Array(25).fill(false)
+
+        card: shuffle(TERMS),
+
+        selected: new Array(25).fill(false)
+
     };
 
     localStorage.setItem(
@@ -274,7 +228,7 @@ function createCard(){
     return data;
 }
 
-function getSavedGame(){
+function getGame(){
 
     const saved =
         localStorage.getItem(STORAGE_KEY);
@@ -282,21 +236,20 @@ function getSavedGame(){
     if(saved){
 
         return JSON.parse(saved);
-
     }
 
-    return createCard();
+    return generateCard();
 }
 
-function saveState(){
+function saveGame(){
 
-    const game = getSavedGame();
+    const game = getGame();
 
-    game.selected = [...document.querySelectorAll(".square")]
-        .map(
-            square =>
-            square.classList.contains("selected")
-        );
+    game.selected = [
+        ...document.querySelectorAll(".square")
+    ].map(square =>
+        square.classList.contains("selected")
+    );
 
     localStorage.setItem(
         STORAGE_KEY,
@@ -311,16 +264,16 @@ function renderBoard(){
 
     board.innerHTML = "";
 
-    const game = getSavedGame();
+    const game = getGame();
 
-    game.card.forEach((acronym,index)=>{
+    game.card.forEach((term,index)=>{
 
         const square =
             document.createElement("div");
 
         square.className = "square";
 
-        square.textContent = acronym;
+        square.innerText = term;
 
         if(game.selected[index]){
 
@@ -331,9 +284,9 @@ function renderBoard(){
 
             square.classList.toggle("selected");
 
-            saveState();
+            saveGame();
 
-            checkBingo();
+            checkForBingo();
 
         });
 
@@ -341,32 +294,32 @@ function renderBoard(){
 
     });
 
-    checkBingo();
+    checkForBingo();
 }
 
-function getWinningLines(){
+function getLines(){
 
-    const lines=[];
+    const lines = [];
 
-    for(let row=0;row<5;row++){
+    for(let r=0;r<5;r++){
 
         lines.push([
-            row*5,
-            row*5+1,
-            row*5+2,
-            row*5+3,
-            row*5+4
+            r*5,
+            r*5+1,
+            r*5+2,
+            r*5+3,
+            r*5+4
         ]);
     }
 
-    for(let col=0;col<5;col++){
+    for(let c=0;c<5;c++){
 
         lines.push([
-            col,
-            col+5,
-            col+10,
-            col+15,
-            col+20
+            c,
+            c+5,
+            c+10,
+            c+15,
+            c+20
         ]);
     }
 
@@ -376,7 +329,7 @@ function getWinningLines(){
     return lines;
 }
 
-function checkBingo(){
+function checkForBingo(){
 
     const banner =
         document.getElementById("bingoBanner");
@@ -384,102 +337,10 @@ function checkBingo(){
     const squares =
         [...document.querySelectorAll(".square")];
 
-    squares.forEach(
-        square =>
-        square.classList.remove("winning")
+    squares.forEach(s =>
+        s.classList.remove("winning")
     );
 
     const selected =
-        squares.map(
-            square =>
-            square.classList.contains("selected")
-        );
-
-    let winningLine = null;
-
-    const lines = getWinningLines();
-
-    for(const line of lines){
-
-        if(line.every(
-            index => selected[index]
-        )){
-
-            winningLine = line;
-
-            break;
-        }
-    }
-
-    if(winningLine){
-
-        banner.style.display = "block";
-
-        winningLine.forEach(index=>{
-
-            squares[index]
-                .classList
-                .add("winning");
-
-        });
-
-        if(!alreadyCelebrated){
-
-            launchConfetti();
-
-            alreadyCelebrated = true;
-        }
-
-    }else{
-
-        banner.style.display = "none";
-
-        alreadyCelebrated = false;
-    }
-}
-
-function launchConfetti(){
-
-    const colours = [
-        "#11873D",
-        "#064D42",
-        "#0032A0",
-        "#E5E1E6"
-    ];
-
-    for(let i=0;i<100;i++){
-
-        const piece =
-            document.createElement("div");
-
-        piece.className = "confetti";
-
-        piece.style.left =
-            Math.random()*100 + "vw";
-
-        piece.style.background =
-            colours[
-                Math.floor(
-                    Math.random() *
-                    colours.length
-                )
-            ];
-
-        piece.style.animationDuration =
-            (2 + Math.random()*2) + "s";
-
-        document.body.appendChild(piece);
-
-        setTimeout(
-            ()=>piece.remove(),
-            4500
-        );
-    }
-}
-
-renderBoard();
-
-</script>
-
-</body>
-</html>
+        squares.map(s =>
+       
