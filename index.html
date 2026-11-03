@@ -2,286 +2,121 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Economic Regulation Bingo</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
+
+:root{
+    --green:#11873D;
+    --darkgreen:#064D42;
+    --blue:#0032A0;
+    --light:#E5E1E6;
+    --white:#FFFFFF;
 }
 
-h1 {
-    color: #1b365d;
+*{
+    box-sizing:border-box;
 }
 
-#bingo {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    max-width: 700px;
-    margin: 20px auto;
+body{
+    margin:0;
+    background:var(--light);
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--darkgreen);
 }
 
-.square {
-    background: white;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    min-height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.2s ease;
+.container{
+    max-width:700px;
+    margin:0 auto;
+    padding:16px;
 }
 
-.square:hover {
-    border-color: #ff8200;
+h1{
+    text-align:center;
+    color:var(--darkgreen);
+    margin-bottom:8px;
+    font-size:1.8rem;
 }
 
-.square.selected {
-    background: #ff8200;
-    color: white;
-    border-color: #ff8200;
+.subtitle{
+    text-align:center;
+    margin-bottom:20px;
+    font-size:1rem;
 }
 
-.square.free {
-    background: #1b365d;
-    color: white;
-    font-weight: bold;
+#bingoMessage{
+    display:none;
+    background:var(--blue);
+    color:white;
+    text-align:center;
+    padding:14px;
+    border-radius:12px;
+    font-weight:bold;
+    font-size:1.2rem;
+    margin-bottom:15px;
+    animation:pulse 1s infinite alternate;
 }
 
-button {
-    margin-top: 20px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    background: #1b365d;
-    color: white;
-    cursor: pointer;
+@keyframes pulse{
+    from{transform:scale(1)}
+    to{transform:scale(1.03)}
 }
 
-button:hover {
-    background: #10233f;
+.board{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
 }
 
-#message {
-    margin-top: 15px;
-    font-weight: bold;
-    font-size: 20px;
-    color: green;
+.square{
+    background:white;
+    border:2px solid var(--darkgreen);
+    border-radius:12px;
+    min-height:80px;
+    padding:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s;
+    user-select:none;
+    word-break:break-word;
+    font-size:0.85rem;
 }
-</style>
-</head>
 
-<body>
+.square.selected{
+    background:var(--green);
+    color:white;
+    border-color:var(--green);
+}
 
-<h1>Economic Regulation Bingo</h1>
-<p>Tap a square to mark it off.</p>
+.square.winning{
+    background:var(--blue) !important;
+    border-color:var(--blue) !important;
+    color:white !important;
+}
 
-<div id="bingo"></div>
+.footer{
+    text-align:center;
+    margin-top:20px;
+    font-size:0.85rem;
+}
 
-<button onclick="generateNewCard()">Generate New Card</button>
+.confetti{
+    position:fixed;
+    width:10px;
+    height:10px;
+    pointer-events:none;
+    top:-10px;
+    animation:fall 4s linear forwards;
+}
 
-<div id="message"></div>
-
-<script>
-
-const acronyms = [
-"NER",
-"AER",
-"ESB",
-"AEMC",
-"AEMO",
-"RIT-D",
-"RIT-T",
-"DAPR",
-"DAP",
-"CAPEX",
-"OPEX",
-"TSS",
-"STPIS",
-"DMIS",
-"NTCR",
-"PTRM",
-"AARR",
-"MAR",
-"F&A",
-"DNSP",
-"TNSP",
-"RAB",
-"WACC",
-"X-Factor",
-"CER",
-"DER",
-"ISP",
-"RIN",
-"LTCR",
-"SAIDI",
-"SAIFI",
-"CESS",
-"EBSS",
-"FRC",
-"AEC",
-"SAPS",
-"TUOS",
-"DUOS",
-"TUOS Pricing"
-];
-
-const CARD_SIZE = 25;
-const STORAGE_KEY = "econRegBingo";
-
-function shuffle(array) {
-    let copy = [...array];
-
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
+@keyframes fall{
+    from{
+        transform:translateY(-10px) rotate(0deg);
     }
-
-    return copy;
-}
-
-function generateNewCard() {
-
-    document.getElementById("message").textContent = "";
-
-    const shuffled = shuffle(acronyms);
-    const selected = shuffled.slice(0, 24);
-
-    selected.splice(12, 0, "FREE");
-
-    saveCard(selected);
-
-    renderCard(selected);
-}
-
-function renderCard(card) {
-
-    const board = document.getElementById("bingo");
-    board.innerHTML = "";
-
-    card.forEach((item, index) => {
-
-        const square = document.createElement("div");
-
-        square.className = "square";
-        square.innerText = item;
-
-        if (item === "FREE") {
-            square.classList.add("free");
-            square.classList.add("selected");
-        }
-
-        square.addEventListener("click", () => {
-
-            if (item === "FREE") return;
-
-            square.classList.toggle("selected");
-
-            saveSelections();
-
-            checkBingo();
-        });
-
-        board.appendChild(square);
-    });
-
-    restoreSelections();
-}
-
-function saveCard(card) {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-            card: card,
-            selected: []
-        })
-    );
-}
-
-function saveSelections() {
-
-    const squares = [...document.querySelectorAll(".square")];
-
-    const selected = squares.map(
-        square => square.classList.contains("selected")
-    );
-
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-    data.selected = selected;
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function restoreSelections() {
-
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-    if (!data || !data.selected) return;
-
-    const squares = [...document.querySelectorAll(".square")];
-
-    squares.forEach((square, index) => {
-        if (data.selected[index]) {
-            square.classList.add("selected");
-        }
-    });
-}
-
-function checkBingo() {
-
-    const squares = [...document.querySelectorAll(".square")]
-        .map(square => square.classList.contains("selected"));
-
-    const lines = [];
-
-    for (let r = 0; r < 5; r++) {
-        lines.push([0,1,2,3,4].map(c => r * 5 + c));
-    }
-
-    for (let c = 0; c < 5; c++) {
-        lines.push([0,1,2,3,4].map(r => r * 5 + c));
-    }
-
-    lines.push([0,6,12,18,24]);
-    lines.push([4,8,12,16,20]);
-
-    const bingo = lines.some(
-        line => line.every(index => squares[index])
-    );
-
-    if (bingo) {
-        document.getElementById("message").textContent =
-            "🎉 BINGO! 🎉";
-    }
-}
-
-function loadCard() {
-
-    const stored = JSON.parse(
-        localStorage.getItem(STORAGE_KEY)
-    );
-
-    if (stored && stored.card) {
-        renderCard(stored.card);
-    } else {
-        generateNewCard();
-    }
-}
-
-loadCard();
-
-</script>
-
-</body>
-</html>
+    to{
+        transform:translateY
