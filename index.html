@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,88 +8,61 @@
 
 <style>
 
-:root{
-  --green:#11873D;
-  --darkgreen:#064D42;
-  --blue:#0032A0;
-  --light:#E5E1E6;
-}
-
-*{
-  box-sizing:border-box;
-}
-
 body{
-  margin:0;
-  padding:15px;
-  font-family:Arial,sans-serif;
-  background:var(--light);
-  color:var(--darkgreen);
+    font-family: Arial, sans-serif;
+    background:#E5E1E6;
+    margin:0;
+    padding:10px;
 }
 
 h1{
-  text-align:center;
-  margin-bottom:5px;
-}
-
-p{
-  text-align:center;
-  margin-bottom:20px;
-}
-
-#banner{
-  display:none;
-  background:var(--blue);
-  color:white;
-  text-align:center;
-  padding:15px;
-  border-radius:8px;
-  font-size:1.4rem;
-  font-weight:bold;
-  margin-bottom:15px;
+    text-align:center;
+    color:#064D42;
 }
 
 .board{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:8px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+    max-width:800px;
+    margin:auto;
 }
 
 .square{
-  background:white;
-  border:2px solid var(--darkgreen);
-  border-radius:8px;
-  min-height:70px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:6px;
-  font-size:.8rem;
-  font-weight:bold;
-  cursor:pointer;
-  user-select:none;
+    background:white;
+    border:2px solid #064D42;
+    border-radius:8px;
+    min-height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:5px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
 .square.selected{
-  background:var(--green);
-  color:white;
-  border-color:var(--green);
+    background:#11873D;
+    color:white;
 }
 
 .square.winning{
-  background:var(--blue) !important;
-  color:white !important;
-  border-color:var(--blue) !important;
+    background:#0032A0 !important;
+    color:white !important;
 }
 
-@media(max-width:600px){
-
-  .square{
-    min-height:65px;
-    font-size:.7rem;
-  }
-
+#banner{
+    display:none;
+    text-align:center;
+    background:#0032A0;
+    color:white;
+    padding:15px;
+    margin:15px auto;
+    border-radius:8px;
+    max-width:800px;
+    font-weight:bold;
+    font-size:24px;
 }
 
 </style>
@@ -99,203 +72,156 @@ p{
 
 <h1>Economic Regulation Bingo</h1>
 
-<p>Mark off acronyms as they are announced.</p>
-
-<div id="banner">
-🎉 BINGO! 🎉
-</div>
+<div id="banner">🎉 BINGO! 🎉</div>
 
 <div id="board" class="board"></div>
 
 <script>
 
-const STORAGE_KEY = "econ-bingo-v1";
-
-const mandatory = [
-  "GN26",
-  "WAPC",
-  "EN29",
-  "FTA",
-  "GNT"
+const requiredTerms = [
+    "GN26",
+    "WAPC",
+    "EN29",
+    "FTA",
+    "GNT"
 ];
 
-const optional = [
-  "PTRM",
-  "WACC",
-  "STPIS",
-  "NEM",
-  "AEMO",
-  "DNSP",
-  "AIO",
-  "CESS",
-  "NER",
-  "DMIS",
-  "RAB",
-  "EBSS",
-  "RFM",
-  "NGR",
-  "ECRC",
-  "CCP",
-  "NZ45",
-  "OPEX",
-  "CAPEX",
-  "CAB",
-  "ENA",
-  "IEP",
-  "NGL",
-  "NGO",
-  "RIN",
-  "TVM",
-  "RSA",
-  "RSP",
-  "SAIDI",
-  "NEO",
-  "TSS",
-  "SAIFI",
-  "EFM",
-  "F&A",
-  "CAM",
-  "CPI",
-  "ESOO",
-  "FOC",
-  "ICRC",
-  "DMO",
-  "SSO",
-  "UNFT"
+const extraTerms = [
+    "PTRM",
+    "WACC",
+    "STPIS",
+    "NEM",
+    "AEMO",
+    "DNSP",
+    "AIO",
+    "CESS",
+    "NER",
+    "DMIS",
+    "RAB",
+    "EBSS",
+    "RFM",
+    "NGR",
+    "ECRC",
+    "CCP",
+    "NZ45",
+    "OPEX",
+    "CAPEX",
+    "CAB",
+    "ENA",
+    "IEP",
+    "NGL",
+    "NGO",
+    "RIN",
+    "TVM",
+    "RSA",
+    "RSP",
+    "SAIDI",
+    "NEO",
+    "TSS",
+    "SAIFI",
+    "EFM",
+    "F&A",
+    "CAM",
+    "CPI",
+    "ESOO",
+    "FOC",
+    "ICRC",
+    "DMO",
+    "SSO",
+    "UNFT"
 ];
 
 function shuffle(array){
 
-  let arr = [...array];
+    let working = [...array];
 
-  for(let i = arr.length - 1; i > 0; i--){
+    for(let i = working.length - 1; i > 0; i--){
 
-    let j = Math.floor(Math.random() * (i + 1));
+        let j = Math.floor(
+            Math.random() * (i + 1)
+        );
 
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  return arr;
-}
-
-function createCard(){
-
-  let extras = shuffle(optional).slice(0,20);
-
-  let card = shuffle([
-    ...mandatory,
-    ...extras
-  ]);
-
-  let game = {
-    card: card,
-    selected: Array(25).fill(false)
-  };
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(game)
-  );
-
-  return game;
-}
-
-function getGame(){
-
-  let saved =
-    localStorage.getItem(STORAGE_KEY);
-
-  if(saved){
-    return JSON.parse(saved);
-  }
-
-  return createCard();
-}
-
-function saveGame(){
-
-  let game = getGame();
-
-  game.selected = [...document.querySelectorAll(".square")]
-    .map(square =>
-      square.classList.contains("selected")
-    );
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(game)
-  );
-}
-
-function renderBoard(){
-
-  const board =
-    document.getElementById("board");
-
-  board.innerHTML = "";
-
-  let game = getGame();
-
-  game.card.forEach((term,index)=>{
-
-    let square =
-      document.createElement("div");
-
-    square.className = "square";
-    square.textContent = term;
-
-    if(game.selected[index]){
-      square.classList.add("selected");
+        let temp = working[i];
+        working[i] = working[j];
+        working[j] = temp;
     }
 
-    square.onclick = ()=>{
+    return working;
+}
 
-      square.classList.toggle("selected");
+function buildCard(){
 
-      saveGame();
+    const extras =
+        shuffle(extraTerms)
+        .slice(0,20);
 
-      checkBingo();
+    const cardTerms = shuffle([
+        ...requiredTerms,
+        ...extras
+    ]);
 
-    };
+    const board =
+        document.getElementById("board");
 
-    board.appendChild(square);
+    board.innerHTML = "";
 
-  });
+    cardTerms.forEach(term => {
 
-  checkBingo();
+        const square =
+            document.createElement("div");
+
+        square.className = "square";
+
+        square.textContent = term;
+
+        square.addEventListener(
+            "click",
+            function(){
+
+                square.classList.toggle(
+                    "selected"
+                );
+
+                checkBingo();
+            }
+        );
+
+        board.appendChild(square);
+
+    });
+
 }
 
 function checkBingo(){
 
-  const squares =
-    [...document.querySelectorAll(".square")];
+    const squares =
+        [...document.querySelectorAll(".square")];
 
-  squares.forEach(s =>
-    s.classList.remove("winning")
-  );
+    squares.forEach(square => {
+        square.classList.remove("winning");
+    });
 
-  const selected =
-    squares.map(s =>
-      s.classList.contains("selected")
-    );
+    const selected =
+        squares.map(square =>
+            square.classList.contains("selected")
+        );
 
-  const lines = [];
+    const lines = [];
 
-  for(let r=0;r<5;r++){
+    for(let row=0; row<5; row++){
 
-    lines.push([
-      r*5,
-      r*5+1,
-      r*5+2,
-      r*5+3,
-      r*5+4
-    ]);
-  }
+        lines.push([
+            row*5,
+            row*5+1,
+            row*5+2,
+            row*5+3,
+            row*5+4
+        ]);
 
-  for(let c=0;c<5;c++){
+    }
 
-    lines.push([
-      c,
-      c+5,
-      c+10,
-      c+15,
+    for(let col=0; col<5; col++){
+
+        lines.push([
+            col,
+            col+
