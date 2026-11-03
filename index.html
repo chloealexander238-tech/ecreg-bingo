@@ -2,124 +2,94 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Economic Regulation Bingo</title>
 
 <style>
 
 :root{
-    --green:#11873D;
-    --darkgreen:#064D42;
-    --blue:#0032A0;
-    --light:#E5E1E6;
+  --green:#11873D;
+  --darkgreen:#064D42;
+  --blue:#0032A0;
+  --light:#E5E1E6;
 }
 
 *{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+  box-sizing:border-box;
 }
 
 body{
-    font-family:Arial,sans-serif;
-    background:var(--light);
-    color:var(--darkgreen);
-    padding:10px;
-}
-
-.container{
-    max-width:800px;
-    margin:auto;
+  margin:0;
+  padding:15px;
+  font-family:Arial,sans-serif;
+  background:var(--light);
+  color:var(--darkgreen);
 }
 
 h1{
-    text-align:center;
-    margin-bottom:10px;
-    color:var(--darkgreen);
+  text-align:center;
+  margin-bottom:5px;
 }
 
-.subtitle{
-    text-align:center;
-    margin-bottom:20px;
+p{
+  text-align:center;
+  margin-bottom:20px;
 }
 
 #banner{
-    display:none;
-    text-align:center;
-    background:var(--blue);
-    color:white;
-    font-size:1.5rem;
-    font-weight:bold;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
+  display:none;
+  background:var(--blue);
+  color:white;
+  text-align:center;
+  padding:15px;
+  border-radius:8px;
+  font-size:1.4rem;
+  font-weight:bold;
+  margin-bottom:15px;
 }
 
 .board{
-    display:grid;
-    grid-template-columns:repeat(5, 1fr);
-    gap:8px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
 }
 
 .square{
-    background:white;
-    border:2px solid var(--darkgreen);
-    border-radius:10px;
-    min-height:75px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    font-weight:bold;
-    cursor:pointer;
-    user-select:none;
-    transition:.2s;
-    padding:6px;
-    word-break:break-word;
+  background:white;
+  border:2px solid var(--darkgreen);
+  border-radius:8px;
+  min-height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:6px;
+  font-size:.8rem;
+  font-weight:bold;
+  cursor:pointer;
+  user-select:none;
 }
 
 .square.selected{
-    background:var(--green);
-    color:white;
-    border-color:var(--green);
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
 }
 
 .square.winning{
-    background:var(--blue)!important;
-    border-color:var(--blue)!important;
-    color:white!important;
+  background:var(--blue) !important;
+  color:white !important;
+  border-color:var(--blue) !important;
 }
 
 @media(max-width:600px){
 
-    .square{
-        min-height:65px;
-        font-size:.7rem;
-    }
+  .square{
+    min-height:65px;
+    font-size:.7rem;
+  }
 
-    h1{
-        font-size:1.5rem;
-    }
-}
-
-.confetti{
-    position:fixed;
-    width:10px;
-    height:10px;
-    top:-20px;
-    pointer-events:none;
-    animation:fall 4s linear forwards;
-}
-
-@keyframes fall{
-    from{
-        transform:translateY(-20px) rotate(0deg);
-    }
-
-    to{
-        transform:translateY(120vh) rotate(720deg);
-    }
 }
 
 </style>
@@ -127,13 +97,9 @@ h1{
 
 <body>
 
-<div class="container">
-
 <h1>Economic Regulation Bingo</h1>
 
-<p class="subtitle">
-Tap acronyms as they are announced. Complete a row, column or diagonal to win.
-</p>
+<p>Mark off acronyms as they are announced.</p>
 
 <div id="banner">
 🎉 BINGO! 🎉
@@ -141,69 +107,195 @@ Tap acronyms as they are announced. Complete a row, column or diagonal to win.
 
 <div id="board" class="board"></div>
 
-</div>
-
 <script>
 
-const STORAGE_KEY="economic-bingo-v100";
+const STORAGE_KEY = "econ-bingo-v1";
 
-const mandatory=[
-
-"GN26",
-"WAPC",
-"EN29",
-"FTA",
-"GNT"
-
+const mandatory = [
+  "GN26",
+  "WAPC",
+  "EN29",
+  "FTA",
+  "GNT"
 ];
 
-const optional=[
-
-"PTRM",
-"WACC",
-"STPIS",
-"NEM",
-"AEMO",
-"DNSP",
-"AIO",
-"CESS",
-"NER",
-"DMIS",
-"RAB",
-"EBSS",
-"RFM",
-"NGR",
-"ECRC",
-"CCP",
-"NZ45",
-"OPEX",
-"CAPEX",
-"CAB",
-"ENA",
-"IEP",
-"NGL",
-"NGO",
-"RIN",
-"TVM",
-"RSA",
-"RSP",
-"SAIDI",
-"NEO",
-"TSS",
-"SAIFI",
-"EFM",
-"F&A",
-"CAM",
-"CPI",
-"ESOO",
-"FOC",
-"ICRC",
-"DMO",
-"SSO",
-"UNFT"
-
+const optional = [
+  "PTRM",
+  "WACC",
+  "STPIS",
+  "NEM",
+  "AEMO",
+  "DNSP",
+  "AIO",
+  "CESS",
+  "NER",
+  "DMIS",
+  "RAB",
+  "EBSS",
+  "RFM",
+  "NGR",
+  "ECRC",
+  "CCP",
+  "NZ45",
+  "OPEX",
+  "CAPEX",
+  "CAB",
+  "ENA",
+  "IEP",
+  "NGL",
+  "NGO",
+  "RIN",
+  "TVM",
+  "RSA",
+  "RSP",
+  "SAIDI",
+  "NEO",
+  "TSS",
+  "SAIFI",
+  "EFM",
+  "F&A",
+  "CAM",
+  "CPI",
+  "ESOO",
+  "FOC",
+  "ICRC",
+  "DMO",
+  "SSO",
+  "UNFT"
 ];
 
-let celebrated=false;
+function shuffle(array){
 
-function 
+  let arr = [...array];
+
+  for(let i = arr.length - 1; i > 0; i--){
+
+    let j = Math.floor(Math.random() * (i + 1));
+
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
+function createCard(){
+
+  let extras = shuffle(optional).slice(0,20);
+
+  let card = shuffle([
+    ...mandatory,
+    ...extras
+  ]);
+
+  let game = {
+    card: card,
+    selected: Array(25).fill(false)
+  };
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(game)
+  );
+
+  return game;
+}
+
+function getGame(){
+
+  let saved =
+    localStorage.getItem(STORAGE_KEY);
+
+  if(saved){
+    return JSON.parse(saved);
+  }
+
+  return createCard();
+}
+
+function saveGame(){
+
+  let game = getGame();
+
+  game.selected = [...document.querySelectorAll(".square")]
+    .map(square =>
+      square.classList.contains("selected")
+    );
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(game)
+  );
+}
+
+function renderBoard(){
+
+  const board =
+    document.getElementById("board");
+
+  board.innerHTML = "";
+
+  let game = getGame();
+
+  game.card.forEach((term,index)=>{
+
+    let square =
+      document.createElement("div");
+
+    square.className = "square";
+    square.textContent = term;
+
+    if(game.selected[index]){
+      square.classList.add("selected");
+    }
+
+    square.onclick = ()=>{
+
+      square.classList.toggle("selected");
+
+      saveGame();
+
+      checkBingo();
+
+    };
+
+    board.appendChild(square);
+
+  });
+
+  checkBingo();
+}
+
+function checkBingo(){
+
+  const squares =
+    [...document.querySelectorAll(".square")];
+
+  squares.forEach(s =>
+    s.classList.remove("winning")
+  );
+
+  const selected =
+    squares.map(s =>
+      s.classList.contains("selected")
+    );
+
+  const lines = [];
+
+  for(let r=0;r<5;r++){
+
+    lines.push([
+      r*5,
+      r*5+1,
+      r*5+2,
+      r*5+3,
+      r*5+4
+    ]);
+  }
+
+  for(let c=0;c<5;c++){
+
+    lines.push([
+      c,
+      c+5,
+      c+10,
+      c+15,
