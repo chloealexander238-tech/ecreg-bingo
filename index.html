@@ -8,128 +8,117 @@
 
 <style>
 
-:root {
-    --green: #11873D;
-    --dark-green: #064D42;
-    --blue: #0032A0;
-    --light: #E5E1E6;
+:root{
+    --green:#11873D;
+    --darkgreen:#064D42;
+    --blue:#0032A0;
+    --light:#E5E1E6;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background: var(--light);
-    color: var(--dark-green);
-    padding: 12px;
+body{
+    font-family:Arial,sans-serif;
+    background:var(--light);
+    color:var(--darkgreen);
+    padding:10px;
 }
 
-.container {
-    max-width: 700px;
-    margin: auto;
+.container{
+    max-width:800px;
+    margin:auto;
 }
 
-h1 {
-    text-align: center;
-    color: var(--dark-green);
-    margin-bottom: 8px;
+h1{
+    text-align:center;
+    margin-bottom:10px;
+    color:var(--darkgreen);
 }
 
-.subtitle {
-    text-align: center;
-    margin-bottom: 20px;
-    line-height: 1.5;
+.subtitle{
+    text-align:center;
+    margin-bottom:20px;
 }
 
-#bingoBanner {
-    display: none;
-    text-align: center;
-    background: var(--blue);
-    color: white;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 1.4rem;
-    font-weight: bold;
-    margin-bottom: 16px;
-    animation: pulse 1s infinite alternate;
+#banner{
+    display:none;
+    text-align:center;
+    background:var(--blue);
+    color:white;
+    font-size:1.5rem;
+    font-weight:bold;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
 }
 
-@keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.03); }
+.board{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
 }
 
-.board {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+.square{
+    background:white;
+    border:2px solid var(--darkgreen);
+    border-radius:10px;
+    min-height:75px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:bold;
+    cursor:pointer;
+    user-select:none;
+    transition:.2s;
+    padding:6px;
+    word-break:break-word;
 }
 
-.square {
-    background: white;
-    border: 2px solid var(--dark-green);
-    border-radius: 10px;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    transition: .2s;
-    word-break: break-word;
-    font-size: 0.85rem;
+.square.selected{
+    background:var(--green);
+    color:white;
+    border-color:var(--green);
 }
 
-.square.selected {
-    background: var(--green);
-    color: white;
-    border-color: var(--green);
+.square.winning{
+    background:var(--blue)!important;
+    border-color:var(--blue)!important;
+    color:white!important;
 }
 
-.square.winning {
-    background: var(--blue) !important;
-    border-color: var(--blue) !important;
-    color: white !important;
-}
+@media(max-width:600px){
 
-@media (max-width: 600px) {
-
-    body {
-        padding: 8px;
+    .square{
+        min-height:65px;
+        font-size:.7rem;
     }
 
-    .square {
-        min-height: 68px;
-        font-size: 0.7rem;
-    }
-
-    h1 {
-        font-size: 1.6rem;
+    h1{
+        font-size:1.5rem;
     }
 }
 
-.confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    top: -20px;
-    pointer-events: none;
-    animation: fall 4s linear forwards;
+.confetti{
+    position:fixed;
+    width:10px;
+    height:10px;
+    top:-20px;
+    pointer-events:none;
+    animation:fall 4s linear forwards;
 }
 
-@keyframes fall {
-    from {
-        transform: translateY(-20px) rotate(0deg);
+@keyframes fall{
+    from{
+        transform:translateY(-20px) rotate(0deg);
     }
-    to {
-        transform: translateY(120vh) rotate(720deg);
+
+    to{
+        transform:translateY(120vh) rotate(720deg);
     }
 }
 
@@ -140,24 +129,81 @@ h1 {
 
 <div class="container">
 
-    <h1>Economic Regulation Bingo</h1>
+<h1>Economic Regulation Bingo</h1>
 
-    <p class="subtitle">
-        Mark off acronyms as they are discussed.<br>
-        Complete a row, column or diagonal to get Bingo.
-    </p>
+<p class="subtitle">
+Tap acronyms as they are discussed. Complete a row, column or diagonal to win.
+</p>
 
-    <div id="bingoBanner">
-        🎉 BINGO! 🎉
-    </div>
+<div id="banner">
+🎉 BINGO! 🎉
+</div>
 
-    <div id="board" class="board"></div>
+<div id="board" class="board"></div>
 
 </div>
 
 <script>
 
-const STORAGE_KEY = "economic-reg-bingo-v2";
+const STORAGE_KEY="economic-bingo-v100";
 
-const REQUIRED_TERMS = [
-    "
+const mandatory=[
+
+"GN26",
+"WAPC",
+"EN29",
+"FTA",
+"GNT"
+
+];
+
+const optional=[
+
+"PTRM",
+"WACC",
+"STPIS",
+"NEM",
+"AEMO",
+"DNSP",
+"AIO",
+"CESS",
+"NER",
+"DMIS",
+"RAB",
+"EBSS",
+"RFM",
+"NGR",
+"ECRC",
+"CCP",
+"NZ45",
+"OPEX",
+"CAPEX",
+"CAB",
+"ENA",
+"IEP",
+"NGL",
+"NGO",
+"RIN",
+"TVM",
+"RSA",
+"RSP",
+"SAIDI",
+"NEO",
+"TSS",
+"SAIFI",
+"EFM",
+"F&A",
+"CAM",
+"CPI",
+"ESOO",
+"FOC",
+"ICRC",
+"DMO",
+"SSO",
+"UNFT"
+
+];
+
+let celebrated=false;
+
+function 
