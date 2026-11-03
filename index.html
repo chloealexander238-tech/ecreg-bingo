@@ -8,129 +8,128 @@
 
 <style>
 
-:root{
-    --green:#11873D;
-    --darkgreen:#064D42;
-    --blue:#0032A0;
-    --light:#E5E1E6;
+:root {
+    --green: #11873D;
+    --dark-green: #064D42;
+    --blue: #0032A0;
+    --light: #E5E1E6;
 }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-body{
-    background:var(--light);
-    font-family:Arial, sans-serif;
-    color:var(--darkgreen);
-    padding:12px;
+body {
+    font-family: Arial, sans-serif;
+    background: var(--light);
+    color: var(--dark-green);
+    padding: 12px;
 }
 
-.container{
-    max-width:700px;
-    margin:auto;
+.container {
+    max-width: 700px;
+    margin: auto;
 }
 
-h1{
-    text-align:center;
-    color:var(--darkgreen);
-    margin-bottom:8px;
-    font-size:2rem;
+h1 {
+    text-align: center;
+    color: var(--dark-green);
+    margin-bottom: 8px;
 }
 
-.subtitle{
-    text-align:center;
-    margin-bottom:20px;
-    line-height:1.4;
+.subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.5;
 }
 
-#bingoBanner{
-    display:none;
-    background:var(--blue);
-    color:white;
-    text-align:center;
-    padding:16px;
-    border-radius:12px;
-    font-size:1.5rem;
-    font-weight:bold;
-    margin-bottom:16px;
-    animation:pulse 1s infinite alternate;
+#bingoBanner {
+    display: none;
+    text-align: center;
+    background: var(--blue);
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    animation: pulse 1s infinite alternate;
 }
 
-@keyframes pulse{
-    from{transform:scale(1);}
-    to{transform:scale(1.03);}
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.03); }
 }
 
-.board{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:8px;
+.board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
 }
 
-.square{
-    background:white;
-    border:2px solid var(--darkgreen);
-    border-radius:10px;
-    min-height:80px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    font-weight:700;
-    padding:6px;
-    cursor:pointer;
-    transition:.2s;
-    user-select:none;
-    word-break:break-word;
+.square {
+    background: white;
+    border: 2px solid var(--dark-green);
+    border-radius: 10px;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    transition: .2s;
+    word-break: break-word;
+    font-size: 0.85rem;
 }
 
-.square.selected{
-    background:var(--green);
-    color:white;
-    border-color:var(--green);
+.square.selected {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
 }
 
-.square.winning{
-    background:var(--blue) !important;
-    border-color:var(--blue) !important;
-    color:white !important;
+.square.winning {
+    background: var(--blue) !important;
+    border-color: var(--blue) !important;
+    color: white !important;
 }
 
-@media(max-width:600px){
+@media (max-width: 600px) {
 
-    .square{
-        min-height:68px;
-        font-size:0.7rem;
+    body {
+        padding: 8px;
     }
 
-    h1{
-        font-size:1.7rem;
+    .square {
+        min-height: 68px;
+        font-size: 0.7rem;
     }
 
-    .subtitle{
-        font-size:0.9rem;
+    h1 {
+        font-size: 1.6rem;
     }
-
 }
 
-.confetti{
-    position:fixed;
-    width:10px;
-    height:10px;
-    top:-20px;
-    pointer-events:none;
-    animation:fall 4s linear forwards;
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -20px;
+    pointer-events: none;
+    animation: fall 4s linear forwards;
 }
 
-@keyframes fall{
-    from{
-        transform:translateY(-20px) rotate(0deg);
+@keyframes fall {
+    from {
+        transform: translateY(-20px) rotate(0deg);
     }
-    to{
-        transform:translateY(120vh) rotate(720deg);
+    to {
+        transform: translateY(120vh) rotate(720deg);
     }
 }
 
@@ -158,189 +157,7 @@ h1{
 
 <script>
 
-const STORAGE_KEY = "econ-reg-bingo-v1";
+const STORAGE_KEY = "economic-reg-bingo-v2";
 
-const TERMS = [
-
-"GN26",
-"WAPC",
-"EN29",
-"FTA",
-"GNT",
-
-"PTRM",
-"WACC",
-"STPIS",
-"NEM",
-"AEMO",
-
-"DNSP",
-"AIO",
-"CESS",
-"NER",
-"DMIS",
-
-"RAB",
-"EBSS",
-"RFM",
-"NGR",
-"ECRC",
-
-"CCP",
-"NZ45",
-"OPEX",
-"CAPEX",
-"CAB"
-
-];
-
-let celebrationShown = false;
-
-function shuffle(array){
-
-    const arr = [...array];
-
-    for(let i = arr.length - 1; i > 0; i--){
-
-        const j = Math.floor(Math.random() * (i + 1));
-
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-
-    return arr;
-}
-
-function generateCard(){
-
-    const data = {
-
-        card: shuffle(TERMS),
-
-        selected: new Array(25).fill(false)
-
-    };
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(data)
-    );
-
-    return data;
-}
-
-function getGame(){
-
-    const saved =
-        localStorage.getItem(STORAGE_KEY);
-
-    if(saved){
-
-        return JSON.parse(saved);
-    }
-
-    return generateCard();
-}
-
-function saveGame(){
-
-    const game = getGame();
-
-    game.selected = [
-        ...document.querySelectorAll(".square")
-    ].map(square =>
-        square.classList.contains("selected")
-    );
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(game)
-    );
-}
-
-function renderBoard(){
-
-    const board =
-        document.getElementById("board");
-
-    board.innerHTML = "";
-
-    const game = getGame();
-
-    game.card.forEach((term,index)=>{
-
-        const square =
-            document.createElement("div");
-
-        square.className = "square";
-
-        square.innerText = term;
-
-        if(game.selected[index]){
-
-            square.classList.add("selected");
-        }
-
-        square.addEventListener("click",()=>{
-
-            square.classList.toggle("selected");
-
-            saveGame();
-
-            checkForBingo();
-
-        });
-
-        board.appendChild(square);
-
-    });
-
-    checkForBingo();
-}
-
-function getLines(){
-
-    const lines = [];
-
-    for(let r=0;r<5;r++){
-
-        lines.push([
-            r*5,
-            r*5+1,
-            r*5+2,
-            r*5+3,
-            r*5+4
-        ]);
-    }
-
-    for(let c=0;c<5;c++){
-
-        lines.push([
-            c,
-            c+5,
-            c+10,
-            c+15,
-            c+20
-        ]);
-    }
-
-    lines.push([0,6,12,18,24]);
-    lines.push([4,8,12,16,20]);
-
-    return lines;
-}
-
-function checkForBingo(){
-
-    const banner =
-        document.getElementById("bingoBanner");
-
-    const squares =
-        [...document.querySelectorAll(".square")];
-
-    squares.forEach(s =>
-        s.classList.remove("winning")
-    );
-
-    const selected =
-        squares.map(s =>
-       
+const REQUIRED_TERMS = [
+    "
