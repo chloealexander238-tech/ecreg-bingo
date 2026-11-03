@@ -44,4 +44,282 @@ h1{
   color:white;
   padding:15px;
   border-radius:8px;
- 
+  text-align:center;
+  font-size:1.5rem;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.board{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  max-width:800px;
+  margin:auto;
+}
+
+.square{
+  background:white;
+  border:2px solid var(--darkgreen);
+  border-radius:8px;
+  min-height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:6px;
+  font-weight:bold;
+  cursor:pointer;
+  user-select:none;
+  transition:.2s;
+}
+
+.square.selected{
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
+}
+
+.square.winning{
+  background:var(--blue) !important;
+  color:white !important;
+  border-color:var(--blue) !important;
+}
+
+@media(max-width:600px){
+
+  .square{
+    min-height:65px;
+    font-size:.72rem;
+  }
+
+}
+
+.confetti{
+  position:fixed;
+  width:10px;
+  height:10px;
+  top:-20px;
+  pointer-events:none;
+  animation:fall 4s linear forwards;
+}
+
+@keyframes fall{
+  from{
+    transform:translateY(-20px) rotate(0deg);
+  }
+  to{
+    transform:translateY(120vh) rotate(720deg);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Economic Regulation Bingo</h1>
+
+<p class="subtitle">
+Tap acronyms as they are discussed
+</p>
+
+<div id="banner" class="banner">
+🎉 BINGO! 🎉
+</div>
+
+<div id="board" class="board"></div>
+
+<script>
+
+const TERMS = [
+
+"GN26",
+"WAPC",
+"EN29",
+"FTA",
+"GNT",
+
+"PTRM",
+"WACC",
+"STPIS",
+"NEM",
+"AEMO",
+
+"DNSP",
+"AIO",
+"CESS",
+"NER",
+"DMIS",
+
+"RAB",
+"EBSS",
+"RFM",
+"NGR",
+"ECRC",
+
+"CCP",
+"NZ45",
+"OPEX",
+"CAPEX",
+"CAB"
+
+];
+
+function shuffle(array){
+
+  const arr = [...array];
+
+  for(let i = arr.length - 1; i > 0; i--){
+
+    const j =
+      Math.floor(Math.random() * (i + 1));
+
+    [arr[i], arr[j]] =
+      [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
+const board =
+  document.getElementById("board");
+
+const card =
+  shuffle(TERMS);
+
+card.forEach(term=>{
+
+  const square =
+    document.createElement("div");
+
+  square.className = "square";
+
+  square.textContent = term;
+
+  square.addEventListener(
+    "click",
+    ()=>{
+
+      square.classList.toggle("selected");
+
+      checkBingo();
+
+    }
+  );
+
+  board.appendChild(square);
+
+});
+
+function checkBingo(){
+
+  const squares =
+    [...document.querySelectorAll(".square")];
+
+  squares.forEach(square=>{
+    square.classList.remove("winning");
+  });
+
+  const selected =
+    squares.map(square=>
+      square.classList.contains("selected")
+    );
+
+  const lines=[];
+
+  for(let r=0;r<5;r++){
+
+    lines.push([
+      r*5,
+      r*5+1,
+      r*5+2,
+      r*5+3,
+      r*5+4
+    ]);
+  }
+
+  for(let c=0;c<5;c++){
+
+    lines.push([
+      c,
+      c+5,
+      c+10,
+      c+15,
+      c+20
+    ]);
+  }
+
+  lines.push([0,6,12,18,24]);
+  lines.push([4,8,12,16,20]);
+
+  let winningLine = null;
+
+  for(const line of lines){
+
+    if(line.every(index=>selected[index])){
+
+      winningLine = line;
+      break;
+
+    }
+
+  }
+
+  const banner =
+    document.getElementById("banner");
+
+  if(winningLine){
+
+    banner.style.display = "block";
+
+    winningLine.forEach(index=>{
+
+      squares[index]
+        .classList
+        .add("winning");
+
+    });
+
+    launchConfetti();
+
+  }else{
+
+    banner.style.display = "none";
+
+  }
+
+}
+
+function launchConfetti(){
+
+  for(let i=0;i<50;i++){
+
+    const piece =
+      document.createElement("div");
+
+    piece.className =
+      "confetti";
+
+    piece.style.left =
+      Math.random()*100 + "vw";
+
+    piece.style.background =
+      ["#11873D","#064D42","#0032A0"][
+        Math.floor(Math.random()*3)
+      ];
+
+    document.body.appendChild(piece);
+
+    setTimeout(()=>{
+      piece.remove();
+    },4000);
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
