@@ -9,150 +9,137 @@
 <style>
 
 :root{
-    --green:#11873D;
-    --darkgreen:#064D42;
-    --blue:#0032A0;
-    --light:#E5E1E6;
+  --green:#11873D;
+  --darkgreen:#064D42;
+  --blue:#0032A0;
+  --light:#E5E1E6;
 }
 
 *{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
 body{
-    font-family:Arial,sans-serif;
-    background:var(--light);
-    color:var(--darkgreen);
-    padding:12px;
+  font-family:Arial,sans-serif;
+  background:var(--light);
+  color:var(--darkgreen);
+  padding:12px;
 }
 
 h1{
-    text-align:center;
-    margin-bottom:8px;
+  text-align:center;
+  margin-bottom:8px;
 }
 
 .subtitle{
-    text-align:center;
-    margin-bottom:18px;
-    line-height:1.4;
+  text-align:center;
+  margin-bottom:18px;
 }
 
 #banner{
-    display:none;
-    background:var(--blue);
-    color:white;
-    padding:16px;
-    border-radius:12px;
-    text-align:center;
-    font-size:1.4rem;
-    font-weight:bold;
-    margin-bottom:16px;
+  display:none;
+  background:var(--blue);
+  color:white;
+  font-size:1.4rem;
+  font-weight:bold;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+  margin-bottom:15px;
 }
 
 .board{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:8px;
-    max-width:900px;
-    margin:auto;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  max-width:900px;
+  margin:auto;
 }
 
 .square{
-    background:white;
-    border:2px solid var(--darkgreen);
-    border-radius:10px;
-    min-height:75px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:6px;
-    font-weight:bold;
-    cursor:pointer;
-    user-select:none;
-    transition:.2s;
-}
-
-.square:hover{
-    transform:scale(1.03);
+  background:white;
+  border:2px solid var(--darkgreen);
+  border-radius:10px;
+  min-height:75px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:6px;
+  font-weight:bold;
+  cursor:pointer;
+  user-select:none;
+  transition:.2s;
 }
 
 .square.selected{
-    background:var(--green);
-    color:white;
-    border-color:var(--green);
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
 }
 
 .square.winning{
-    background:var(--blue) !important;
-    border-color:var(--blue) !important;
-    color:white !important;
+  background:var(--blue)!important;
+  border-color:var(--blue)!important;
+  color:white!important;
 }
 
 @media(max-width:600px){
 
-    .square{
-        min-height:65px;
-        font-size:0.72rem;
-    }
-
-    h1{
-        font-size:1.6rem;
-    }
+  .square{
+    min-height:65px;
+    font-size:.72rem;
+  }
 
 }
 
-/* COOL CONFETTI */
+/* CONFETTI */
 
 .confetti{
-    position:fixed;
-    top:-20px;
-    z-index:9999;
-    pointer-events:none;
+  position:fixed;
+  top:-20px;
+  pointer-events:none;
+  z-index:9999;
 }
 
 @keyframes blastLeft{
 
-    0%{
-        transform:
-            translate(0,0)
-            rotate(0deg);
-        opacity:1;
-    }
+  0%{
+    transform:translate(0,0) rotate(0deg);
+    opacity:1;
+  }
 
-    100%{
-        transform:
-            translate(
-                calc(200px + var(--drift) * 1200px),
-                calc(250px + var(--drop) * 1200px)
-            )
-            rotate(1800deg);
+  100%{
+    transform:
+      translate(
+        calc(200px + var(--drift) * 1200px),
+        calc(200px + var(--drop) * 1200px)
+      )
+      rotate(1800deg);
 
-        opacity:0;
-    }
+    opacity:0;
+  }
 }
 
 @keyframes blastRight{
 
-    0%{
-        transform:
-            translate(0,0)
-            rotate(0deg);
-        opacity:1;
-    }
+  0%{
+    transform:translate(0,0) rotate(0deg);
+    opacity:1;
+  }
 
-    100%{
-        transform:
-            translate(
-                calc(-200px - var(--drift) * 1200px),
-                calc(250px + var(--drop) * 1200px)
-            )
-            rotate(-1800deg);
+  100%{
+    transform:
+      translate(
+        calc(-200px - var(--drift) * 1200px),
+        calc(200px + var(--drop) * 1200px)
+      )
+      rotate(-1800deg);
 
-        opacity:0;
-    }
+    opacity:0;
+  }
 }
 
 </style>
@@ -174,267 +161,305 @@ Complete a row, column or diagonal to win.
 
 <script>
 
-const REQUIRED_TERMS = [
-    "GN26",
-    "WAPC",
-    "EN29",
-    "FTA",
-    "GNT"
+const REQUIRED = [
+  "GN26",
+  "WAPC",
+  "EN29",
+  "FTA",
+  "GNT"
 ];
 
-const OPTIONAL_TERMS = [
-    "PTRM",
-    "WACC",
-    "STPIS",
-    "NEM",
-    "AEMO",
-    "DNSP",
-    "AIO",
-    "CESS",
-    "NER",
-    "DMIS",
-    "RAB",
-    "EBSS",
-    "RFM",
-    "NGR",
-    "ECRC",
-    "CCP",
-    "NZ45",
-    "OPEX",
-    "CAPEX",
-    "CAB",
-    "ENA",
-    "IEP",
-    "NGL",
-    "NGO",
-    "RIN",
-    "TVM",
-    "RSA",
-    "RSP",
-    "SAIDI",
-    "NEO",
-    "TSS",
-    "SAIFI",
-    "EFM",
-    "F&A",
-    "CAM",
-    "CPI",
-    "ESOO",
-    "FOC",
-    "ICRC",
-    "DMO",
-    "SSO",
-    "UNFT"
+const OPTIONAL = [
+  "PTRM","WACC","STPIS","NEM","AEMO",
+  "DNSP","AIO","CESS","NER","DMIS",
+  "RAB","EBSS","RFM","NGR","ECRC",
+  "CCP","NZ45","OPEX","CAPEX","CAB",
+  "ENA","IEP","NGL","NGO","RIN",
+  "TVM","RSA","RSP","SAIDI","NEO",
+  "TSS","SAIFI","EFM","F&A","CAM",
+  "CPI","ESOO","FOC","ICRC","DMO",
+  "SSO","UNFT"
 ];
+
+const WINNING_CHANCE = 1/40;
 
 let celebrated = false;
 
 function shuffle(array){
 
-    const arr = [...array];
+  const arr = [...array];
 
-    for(let i=arr.length-1;i>0;i--){
+  for(let i=arr.length-1;i>0;i--){
 
-        const j =
-            Math.floor(Math.random()*(i+1));
+    const j =
+      Math.floor(Math.random()*(i+1));
 
-        [arr[i],arr[j]] =
-            [arr[j],arr[i]];
-    }
+    [arr[i],arr[j]] =
+      [arr[j],arr[i];
+  }
 
-    return arr;
+  return arr;
 }
 
-const extraTerms =
-    shuffle(OPTIONAL_TERMS)
-    .slice(0,20);
+const winningPatterns = [
 
-const cardTerms =
-    shuffle([
-        ...REQUIRED_TERMS,
-        ...extraTerms
-    ]);
+[0,1,2,3,4],
+[5,6,7,8,9],
+[10,11,12,13,14],
+[15,16,17,18,19],
+[20,21,22,23,24],
 
-const board =
-    document.getElementById("board");
+[0,5,10,15,20],
+[1,6,11,16,21],
+[2,7,12,17,22],
+[3,8,13,18,23],
+[4,9,14,19,24],
 
-cardTerms.forEach(term=>{
+[0,6,12,18,24],
+[4,8,12,16,20]
 
-    const square =
-        document.createElement("div");
+];
 
-    square.className = "square";
-    square.textContent = term;
+function buildCard(){
 
-    square.addEventListener("click",()=>{
+  const isWinner =
+    Math.random() < WINNING_CHANCE;
 
-        square.classList.toggle("selected");
+  const card =
+    Array(25).fill(null);
 
-        checkBingo();
+  const extras =
+    shuffle(OPTIONAL).slice(0,20);
+
+  if(isWinner){
+
+    const pattern =
+      winningPatterns[
+        Math.floor(
+          Math.random() *
+          winningPatterns.length
+        )
+      ];
+
+    const required =
+      shuffle(REQUIRED);
+
+    pattern.forEach((pos,index)=>{
+
+      card[pos] =
+        required[index];
 
     });
 
-    board.appendChild(square);
+    let extraIndex = 0;
+
+    for(let i=0;i<25;i++){
+
+      if(card[i] === null){
+
+        card[i] =
+          extras[extraIndex];
+
+        extraIndex++;
+      }
+
+    }
+
+  }else{
+
+    const terms = shuffle([
+      ...REQUIRED,
+      ...extras
+    ]);
+
+    for(let i=0;i<25;i++){
+
+      card[i] = terms[i];
+
+    }
+
+  }
+
+  return card;
+}
+
+const cardTerms =
+  buildCard();
+
+const board =
+  document.getElementById("board");
+
+cardTerms.forEach(term=>{
+
+  const square =
+    document.createElement("div");
+
+  square.className="square";
+
+  square.textContent=term;
+
+  square.onclick=()=>{
+
+    square.classList.toggle("selected");
+
+    checkBingo();
+
+  };
+
+  board.appendChild(square);
 
 });
 
 function checkBingo(){
 
-    const squares =
-        [...document.querySelectorAll(".square")];
+  const squares =
+    [...document.querySelectorAll(".square")];
 
-    squares.forEach(square=>
-        square.classList.remove("winning")
+  squares.forEach(square=>
+    square.classList.remove(
+      "winning"
+    )
+  );
+
+  const selected =
+    squares.map(square=>
+      square.classList.contains(
+        "selected"
+      )
     );
 
-    const selected =
-        squares.map(square=>
-            square.classList.contains("selected")
-        );
+  let winner=null;
 
-    const lines = [];
+  for(const line of winningPatterns){
 
-    for(let row=0;row<5;row++){
+    if(
+      line.every(
+        index => selected[index]
+      )
+    ){
 
-        lines.push([
-            row*5,
-            row*5+1,
-            row*5+2,
-            row*5+3,
-            row*5+4
-        ]);
+      winner=line;
+      break;
     }
 
-    for(let col=0;col<5;col++){
+  }
 
-        lines.push([
-            col,
-            col+5,
-            col+10,
-            col+15,
-            col+20
-        ]);
+  const banner =
+    document.getElementById(
+      "banner"
+    );
+
+  if(winner){
+
+    banner.style.display="block";
+
+    winner.forEach(index=>{
+
+      squares[index]
+        .classList
+        .add("winning");
+
+    });
+
+    if(!celebrated){
+
+      launchConfetti();
+
+      celebrated=true;
     }
 
-    lines.push([0,6,12,18,24]);
-    lines.push([4,8,12,16,20]);
+  }else{
 
-    let winningLine = null;
+    banner.style.display="none";
 
-    for(const line of lines){
+    celebrated=false;
+  }
 
-        if(
-            line.every(
-                index => selected[index]
-            )
-        ){
-
-            winningLine = line;
-            break;
-        }
-    }
-
-    const banner =
-        document.getElementById("banner");
-
-    if(winningLine){
-
-        banner.style.display="block";
-
-        winningLine.forEach(index=>{
-
-            squares[index]
-                .classList
-                .add("winning");
-
-        });
-
-        if(!celebrated){
-
-            launchConfetti();
-
-            celebrated = true;
-        }
-
-    }else{
-
-        banner.style.display="none";
-        celebrated = false;
-    }
 }
 
 function launchConfetti(){
 
-    const colours = [
-        "#11873D",
-        "#064D42",
-        "#0032A0",
-        "#FFFFFF",
-        "#FFD700"
-    ];
+  const colours = [
+    "#11873D",
+    "#064D42",
+    "#0032A0",
+    "#FFFFFF",
+    "#FFD700"
+  ];
 
-    for(let i=0;i<250;i++){
+  for(let i=0;i<200;i++){
 
-        const piece =
-            document.createElement("div");
+    const piece =
+      document.createElement(
+        "div"
+      );
 
-        piece.className = "confetti";
+    piece.className="confetti";
 
-        piece.style.width =
-            (4 + Math.random()*10) + "px";
+    piece.style.width =
+      (4 + Math.random()*10) +
+      "px";
 
-        piece.style.height =
-            (8 + Math.random()*16) + "px";
+    piece.style.height =
+      (8 + Math.random()*16) +
+      "px";
 
-        piece.style.background =
-            colours[
-                Math.floor(
-                    Math.random()*colours.length
-                )
-            ];
+    piece.style.background =
+      colours[
+        Math.floor(
+          Math.random() *
+          colours.length
+        )
+      ];
 
-        piece.style.borderRadius =
-            Math.random() > 0.5
-                ? "50%"
-                : "2px";
+    piece.style.borderRadius =
+      Math.random() > 0.5
+        ? "50%"
+        : "2px";
 
-        piece.style.setProperty(
-            "--drift",
-            Math.random()
-        );
+    piece.style.setProperty(
+      "--drift",
+      Math.random()
+    );
 
-        piece.style.setProperty(
-            "--drop",
-            Math.random()
-        );
+    piece.style.setProperty(
+      "--drop",
+      Math.random()
+    );
 
-        const duration =
-            3 + Math.random()*3;
+    const duration =
+      3 + Math.random()*3;
 
-        if(i % 2 === 0){
+    if(i % 2 === 0){
 
-            piece.style.left =
-                Math.random()*100 + "px";
+      piece.style.left =
+        Math.random()*120 +
+        "px";
 
-            piece.style.animation =
-                `blastLeft ${duration}s ease-out forwards`;
+      piece.style.animation =
+        `blastLeft ${duration}s ease-out forwards`;
 
-        }else{
+    }else{
 
-            piece.style.right =
-                Math.random()*100 + "px";
+      piece.style.right =
+        Math.random()*120 +
+        "px";
 
-            piece.style.animation =
-                `blastRight ${duration}s ease-out forwards`;
+      piece.style.animation =
+        `blastRight ${duration}s ease-out forwards`;
 
-        }
-
-        document.body.appendChild(piece);
-
-        setTimeout(()=>{
-            piece.remove();
-        },7000);
     }
+
+    document.body.appendChild(
+      piece
+    );
+
+    setTimeout(()=>{
+      piece.remove();
+    },7000);
+
+  }
+
 }
 
 </script>
