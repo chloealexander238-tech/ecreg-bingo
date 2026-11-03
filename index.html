@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Economic Regulation Bingo</title>
 
 <style>
@@ -12,31 +13,32 @@
     --darkgreen:#064D42;
     --blue:#0032A0;
     --light:#E5E1E6;
-    --white:#FFFFFF;
+    --white:#ffffff;
 }
 
 *{
     box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
 body{
-    margin:0;
-    background:var(--light);
     font-family:Arial, Helvetica, sans-serif;
+    background:var(--light);
     color:var(--darkgreen);
+    padding:16px;
 }
 
 .container{
     max-width:700px;
     margin:0 auto;
-    padding:16px;
 }
 
 h1{
     text-align:center;
     color:var(--darkgreen);
-    margin-bottom:8px;
-    font-size:1.8rem;
+    margin-bottom:10px;
+    font-size:2rem;
 }
 
 .subtitle{
@@ -45,22 +47,26 @@ h1{
     font-size:1rem;
 }
 
-#bingoMessage{
+#bingoBanner{
     display:none;
     background:var(--blue);
     color:white;
-    text-align:center;
-    padding:14px;
+    padding:16px;
     border-radius:12px;
+    text-align:center;
     font-weight:bold;
-    font-size:1.2rem;
-    margin-bottom:15px;
-    animation:pulse 1s infinite alternate;
+    font-size:1.4rem;
+    margin-bottom:20px;
+    animation:pulse .9s infinite alternate;
 }
 
 @keyframes pulse{
-    from{transform:scale(1)}
-    to{transform:scale(1.03)}
+    from{
+        transform:scale(1);
+    }
+    to{
+        transform:scale(1.03);
+    }
 }
 
 .board{
@@ -72,19 +78,18 @@ h1{
 .square{
     background:white;
     border:2px solid var(--darkgreen);
-    border-radius:12px;
-    min-height:80px;
-    padding:8px;
+    border-radius:10px;
+    min-height:82px;
     display:flex;
     align-items:center;
     justify-content:center;
     text-align:center;
-    font-weight:600;
+    font-weight:700;
+    font-size:.82rem;
+    padding:8px;
     cursor:pointer;
-    transition:0.2s;
     user-select:none;
-    word-break:break-word;
-    font-size:0.85rem;
+    transition:.2s;
 }
 
 .square.selected{
@@ -95,36 +100,49 @@ h1{
 
 .square.winning{
     background:var(--blue) !important;
-    border-color:var(--blue) !important;
     color:white !important;
+    border-color:var(--blue) !important;
 }
 
-.footer{
-    text-align:center;
-    margin-top:20px;
-    font-size:0.85rem;
+@media(max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    .square{
+        min-height:70px;
+        font-size:.72rem;
+        padding:6px;
+    }
+
+    h1{
+        font-size:1.6rem;
+    }
 }
 
 .confetti{
     position:fixed;
     width:10px;
     height:10px;
-    pointer-events:none;
     top:-10px;
-    animation:fall 4s linear forwards;
+    pointer-events:none;
+    animation:fall 3.5s linear forwards;
 }
 
 @keyframes fall{
     from{
-        transform:translateY(-10px) rotate(0deg);
+        transform:translateY(-20px) rotate(0deg);
     }
+
     to{
-        transform:translateY(120vh) rotate(720deg);
+        transform:translateY(120vh) rotate(900deg);
     }
 }
 
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -132,22 +150,23 @@ h1{
     <h1>Economic Regulation Bingo</h1>
 
     <p class="subtitle">
-        Tap an acronym when you hear it or use it.
+        Tap an acronym when it is mentioned.
     </p>
 
-    <div id="bingoMessage">
+    <div id="bingoBanner">
         🎉 BINGO! 🎉
     </div>
 
-    <div class="board" id="board"></div>
+    <div id="board" class="board"></div>
 
 </div>
 
 <script>
 
-const STORAGE_KEY = "econ-reg-bingo-v2";
+const STORAGE_KEY = "economic-regulation-bingo";
 
 const acronyms = [...new Set([
+
 "GN26",
 "WAPC",
 "EN29",
@@ -195,255 +214,46 @@ const acronyms = [...new Set([
 "DMO",
 "SSO",
 "UNFT"
+
 ])];
 
-let card = [];
+let alreadyCelebrated = false;
 
 function shuffle(array){
 
-    let copy = [...array];
+    const arr = [...array];
 
-    for(let i=copy.length-1;i>0;i--){
+    for(let i = arr.length - 1; i > 0; i--){
 
-        let j=Math.floor(Math.random()*(i+1));
+        const j = Math.floor(Math.random() * (i + 1));
 
-        [copy[i],copy[j]]=[copy[j],copy[i]];
+        [arr[i], arr[j]] = [arr[j], arr[i]];
     }
 
-    return copy;
+    return arr;
 }
 
 function createCard(){
 
-    const shuffled = shuffle(acronyms);
-
-    card = shuffled.slice(0,25);
-
-    const data={
-        card,
-        selected:Array(25).fill(false)
-    };
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(data)
-    );
-
-    return data;
-
-}
-
-function loadCard(){
-
-    let data = localStorage.getItem(STORAGE_KEY);
-
-    if(!data){
-
-        return createCard();
-
-    }
-
-    return JSON.parse(data);
-
-}
-
-function saveSelections(){
-
-    const squares = document.querySelectorAll('.square');
-
-    const data = JSON.parse(
-        localStorage.getItem(STORAGE_KEY)
-    );
-
-    data.selected = [...squares].map(
-        s=>s.classList.contains('selected')
-    );
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(data)
-    );
-
-}
-
-function render(){
-
-    const board = document.getElementById('board');
-
-    board.innerHTML='';
-
-    const data = loadCard();
-
-    data.card.forEach((item,index)=>{
-
-        const div=document.createElement('div');
-
-        div.className='square';
-
-        div.textContent=item;
-
-        if(data.selected[index]){
-
-            div.classList.add('selected');
-
-        }
-
-        div.addEventListener('click',()=>{
-
-            div.classList.toggle('selected');
-
-            saveSelections();
-
-            checkBingo();
-
-        });
-
-        board.appendChild(div);
-
-    });
-
-    checkBingo();
-
-}
-
-function getWinningLines(){
-
-    const lines=[];
-
-    for(let r=0;r<5;r++){
-
-        lines.push([
-            r*5,
-            r*5+1,
-            r*5+2,
-            r*5+3,
-            r*5+4
-        ]);
-
-    }
-
-    for(let c=0;c<5;c++){
-
-        lines.push([
-            c,
-            c+5,
-            c+10,
-            c+15,
-            c+20
-        ]);
-
-    }
-
-    lines.push([0,6,12,18,24]);
-
-    lines.push([4,8,12,16,20]);
-
-    return lines;
-
-}
-
-let alreadyCelebrated = false;
-
-function checkBingo(){
-
-    const squares =
-        [...document.querySelectorAll('.square')];
-
-    squares.forEach(
-        s=>s.classList.remove('winning')
-    );
-
-    const selected =
-        squares.map(
-            s=>s.classList.contains('selected')
-        );
-
-    const lines = getWinningLines();
-
-    let winningLine=null;
-
-    for(const line of lines){
-
-        if(line.every(i=>selected[i])){
-
-            winningLine=line;
-            break;
-
-        }
-
-    }
-
-    const banner =
-        document.getElementById('bingoMessage');
-
-    if(winningLine){
-
-        banner.style.display='block';
-
-        winningLine.forEach(i=>{
-            squares[i].classList.add('winning');
-        });
-
-        if(!alreadyCelebrated){
-
-            launchConfetti();
-
-            alreadyCelebrated=true;
-
-        }
-
-    }else{
-
-        banner.style.display='none';
-
-        alreadyCelebrated=false;
-
-    }
-
-}
-
-function launchConfetti(){
-
-    const colours=[
-        "#11873D",
-        "#064D42",
-        "#0032A0",
-        "#E5E1E6"
+    const guaranteedRow = [
+        "GN26",
+        "WAPC",
+        "EN29",
+        "FTA",
+        "GNT"
     ];
 
-    for(let i=0;i<120;i++){
+    const remaining = acronyms.filter(
+        item => !guaranteedRow.includes(item)
+    );
 
-        const confetti =
-            document.createElement('div');
+    const random = shuffle(remaining);
 
-        confetti.className='confetti';
+    const card = [
 
-        confetti.style.left=
-            Math.random()*100+"vw";
+        ...random.slice(0,5),
+        ...random.slice(5,10),
 
-        confetti.style.background=
-            colours[
-                Math.floor(
-                    Math.random()*colours.length
-                )
-            ];
+        ...guaranteedRow,
 
-        confetti.style.animationDuration=
-            (2 + Math.random()*3) + "s";
-
-        document.body.appendChild(confetti);
-
-        setTimeout(()=>{
-            confetti.remove();
-        },5000);
-
-    }
-
-}
-
-render();
-
-</script>
-
-</body>
-</html>
+        ...random.slice(10,15),
