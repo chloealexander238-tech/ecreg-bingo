@@ -9,377 +9,417 @@
 <style>
 
 :root{
-  --green:#11873D;
-  --darkgreen:#064D42;
-  --blue:#0032A0;
-  --light:#E5E1E6;
+--green:#11873D;
+--darkgreen:#064D42;
+--blue:#0032A0;
+--light:#E5E1E6;
 }
 
 *{
-  box-sizing:border-box;
+box-sizing:border-box;
+margin:0;
+padding:0;
 }
 
 body{
-  margin:0;
-  padding:12px;
-  font-family:Arial,sans-serif;
-  background:var(--light);
+font-family:Arial,sans-serif;
+background:var(--light);
+padding:12px;
+color:var(--darkgreen);
 }
 
 h1{
-  text-align:center;
-  color:var(--darkgreen);
-  margin-bottom:8px;
+text-align:center;
+margin-bottom:8px;
 }
 
 .subtitle{
-  text-align:center;
-  margin-bottom:20px;
-  color:var(--darkgreen);
+text-align:center;
+margin-bottom:16px;
+line-height:1.4;
 }
 
-.banner{
-  display:none;
-  background:var(--blue);
-  color:white;
-  padding:15px;
-  border-radius:8px;
-  text-align:center;
-  font-size:1.5rem;
-  font-weight:bold;
-  margin-bottom:15px;
+#banner{
+display:none;
+background:var(--blue);
+color:white;
+padding:16px;
+border-radius:10px;
+text-align:center;
+font-size:1.3rem;
+font-weight:bold;
+margin-bottom:15px;
 }
 
 .board{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:8px;
-  max-width:800px;
-  margin:auto;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:8px;
+max-width:800px;
+margin:auto;
 }
 
 .square{
-  background:white;
-  border:2px solid var(--darkgreen);
-  border-radius:8px;
-  min-height:70px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:6px;
-  font-weight:bold;
-  cursor:pointer;
-  user-select:none;
-  transition:.2s;
+background:white;
+border:2px solid var(--darkgreen);
+border-radius:10px;
+min-height:75px;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:6px;
+font-weight:bold;
+cursor:pointer;
+user-select:none;
+transition:.2s;
 }
 
 .square.selected{
-  background:var(--green);
-  color:white;
-  border-color:var(--green);
+background:var(--green);
+color:white;
+border-color:var(--green);
 }
 
 .square.winning{
-  background:var(--blue) !important;
-  color:white !important;
-  border-color:var(--blue) !important;
+background:var(--blue)!important;
+color:white!important;
+border-color:var(--blue)!important;
 }
 
 @media(max-width:600px){
 
-  .square{
-    min-height:65px;
-    font-size:.72rem;
-  }
+.square{
+min-height:65px;
+font-size:.72rem;
+}
 
 }
 
 .confetti{
-2
 position:fixed;
-3
-top:-20px;
-4
 pointer-events:none;
-5
-border-radius:2px;
-6
-animation:confettiFall linear forwards;
-7
+z-index:9999;
 }
-8
- 
-9
-@keyframes confettiFall{
-10
- 
-11
+
+@keyframes cannonLeft{
 0%{
-12
-transform:
-13
-translate(0,-20px)
-14
-rotate(0deg);
-15
+transform:translate(0,0) rotate(0deg);
+opacity:1;
 }
-16
- 
-17
-25%{
-18
-transform:
-19
-translate(40px,25vh)
-20
-rotate(180deg);
-21
-}
-22
- 
-23
-50%{
-24
-transform:
-25
-translate(-40px,50vh)
-26
-rotate(360deg);
-27
-}
-28
- 
-29
-75%{
-30
-transform:
-31
-translate(60px,75vh)
-32
-rotate(540deg);
-33
-}
-34
- 
-35
 100%{
-36
 transform:
-37
-translate(-30px,120vh)
-38
-rotate(720deg);
-39
+translate(
+calc(300px + var(--drift) * 400px),
+calc(-250px + var(--drop) * 700px)
+)
+rotate(1080deg);
+opacity:0;
 }
-40
- 
-41
+}
+
+@keyframes cannonRight{
+0%{
+transform:translate(0,0) rotate(0deg);
+opacity:1;
+}
+100%{
+transform:
+translate(
+calc(-300px - var(--drift) * 400px),
+calc(-250px + var(--drop) * 700px)
+)
+rotate(-1080deg);
+opacity:0;
+}
 }
 
 </style>
 </head>
-
 <body>
 
 <h1>Economic Regulation Bingo</h1>
 
 <p class="subtitle">
-Tap acronyms as they are discussed
+Complete a row, column or diagonal.<br>
+⭐ Strategic Bingo: mark GN26, WAPC, EN29, FTA and GNT.
 </p>
 
-<div id="banner" class="banner">
-🎉 BINGO! 🎉
-</div>
+<div id="banner"></div>
 
 <div id="board" class="board"></div>
 
 <script>
 
-const TERMS = [
-
+const REQUIRED = [
 "GN26",
 "WAPC",
 "EN29",
 "FTA",
-"GNT",
+"GNT"
+];
 
+const OPTIONAL = [
 "PTRM",
 "WACC",
 "STPIS",
 "NEM",
 "AEMO",
-
 "DNSP",
 "AIO",
 "CESS",
 "NER",
 "DMIS",
-
 "RAB",
 "EBSS",
 "RFM",
 "NGR",
 "ECRC",
-
 "CCP",
 "NZ45",
 "OPEX",
 "CAPEX",
-"CAB"
-
+"CAB",
+"ENA",
+"IEP",
+"NGL",
+"NGO",
+"RIN",
+"TVM",
+"RSA",
+"RSP",
+"SAIDI",
+"NEO",
+"TSS",
+"SAIFI",
+"EFM",
+"F&A",
+"CAM",
+"CPI",
+"ESOO",
+"FOC",
+"ICRC",
+"DMO",
+"SSO",
+"UNFT"
 ];
 
-function shuffle(array){
+let celebrated = false;
 
-  const arr = [...array];
+function shuffle(arr){
 
-  for(let i = arr.length - 1; i > 0; i--){
+const a=[...arr];
 
-    const j =
-      Math.floor(Math.random() * (i + 1));
+for(let i=a.length-1;i>0;i--){
 
-    [arr[i], arr[j]] =
-      [arr[j], arr[i]];
-  }
+const j=Math.floor(Math.random()*(i+1));
 
-  return arr;
+[a[i],a[j]]=[a[j],a[i]];
 }
 
-const board =
-  document.getElementById("board");
+return a;
+}
+
+const extras =
+shuffle(OPTIONAL).slice(0,20);
 
 const card =
-  shuffle(TERMS);
+shuffle([
+...REQUIRED,
+...extras
+]);
+
+const board =
+document.getElementById("board");
 
 card.forEach(term=>{
 
-  const square =
-    document.createElement("div");
+const square =
+document.createElement("div");
 
-  square.className = "square";
+square.className="square";
+square.textContent=term;
 
-  square.textContent = term;
+square.onclick=()=>{
+square.classList.toggle("selected");
+checkBingo();
+};
 
-  square.addEventListener(
-    "click",
-    ()=>{
-
-      square.classList.toggle("selected");
-
-      checkBingo();
-
-    }
-  );
-
-  board.appendChild(square);
+board.appendChild(square);
 
 });
 
 function checkBingo(){
 
-  const squares =
-    [...document.querySelectorAll(".square")];
+const squares =
+[...document.querySelectorAll(".square")];
 
-  squares.forEach(square=>{
-    square.classList.remove("winning");
-  });
+squares.forEach(s=>
+s.classList.remove("winning")
+);
 
-  const selected =
-    squares.map(square=>
-      square.classList.contains("selected")
-    );
+const selected =
+squares.map(square =>
+square.classList.contains("selected")
+);
 
-  const lines=[];
+const lines=[];
 
-  for(let r=0;r<5;r++){
+for(let r=0;r<5;r++){
 
-    lines.push([
-      r*5,
-      r*5+1,
-      r*5+2,
-      r*5+3,
-      r*5+4
-    ]);
-  }
+lines.push([
+r*5,
+r*5+1,
+r*5+2,
+r*5+3,
+r*5+4
+]);
+}
 
-  for(let c=0;c<5;c++){
+for(let c=0;c<5;c++){
 
-    lines.push([
-      c,
-      c+5,
-      c+10,
-      c+15,
-      c+20
-    ]);
-  }
+lines.push([
+c,
+c+5,
+c+10,
+c+15,
+c+20
+]);
+}
 
-  lines.push([0,6,12,18,24]);
-  lines.push([4,8,12,16,20]);
+lines.push([0,6,12,18,24]);
+lines.push([4,8,12,16,20]);
 
-  let winningLine = null;
+let bingoLine=null;
 
-  for(const line of lines){
+for(const line of lines){
 
-    if(line.every(index=>selected[index])){
+if(line.every(i=>selected[i])){
 
-      winningLine = line;
-      break;
+bingoLine=line;
+break;
+}
+}
 
-    }
+const selectedTerms =
+squares
+.filter(s=>s.classList.contains("selected"))
+.map(s=>s.textContent);
 
-  }
+const strategicWin =
+REQUIRED.every(term =>
+selectedTerms.includes(term)
+);
 
-  const banner =
-    document.getElementById("banner");
+const banner =
+document.getElementById("banner");
 
-  if(winningLine){
+if(bingoLine){
 
-    banner.style.display = "block";
+banner.style.display="block";
+banner.innerHTML="🎉 BINGO! 🎉";
 
-    winningLine.forEach(index=>{
+bingoLine.forEach(i=>{
+squares[i].classList.add("winning");
+});
 
-      squares[index]
-        .classList
-        .add("winning");
+if(!celebrated){
 
-    });
+launchConfetti();
+celebrated=true;
 
-    launchConfetti();
+}
 
-  }else{
+return;
+}
 
-    banner.style.display = "none";
+if(strategicWin){
 
-  }
+banner.style.display="block";
+banner.innerHTML="⭐ STRATEGIC BINGO! ⭐";
+
+if(!celebrated){
+
+launchConfetti();
+celebrated=true;
+
+}
+
+return;
+}
+
+banner.style.display="none";
+celebrated=false;
 
 }
 
 function launchConfetti(){
 
-  for(let i=0;i<50;i++){
+const colours=[
+"#11873D",
+"#064D42",
+"#0032A0",
+"#FFFFFF"
+];
 
-    const piece =
-      document.createElement("div");
+for(let i=0;i<200;i++){
 
-    piece.className =
-      "confetti";
+const piece =
+document.createElement("div");
 
-    piece.style.left =
-      Math.random()*100 + "vw";
+piece.className="confetti";
 
-    piece.style.background =
-      ["#11873D","#064D42","#0032A0"][
-        Math.floor(Math.random()*3)
-      ];
+piece.style.width =
+(6+Math.random()*10)+"px";
 
-    document.body.appendChild(piece);
+piece.style.height =
+(8+Math.random()*16)+"px";
 
-    setTimeout(()=>{
-      piece.remove();
-    },4000);
+piece.style.background =
+colours[
+Math.floor(
+Math.random()*colours.length
+)
+];
 
-  }
+piece.style.setProperty(
+"--drift",
+Math.random()
+);
+
+piece.style.setProperty(
+"--drop",
+Math.random()
+);
+
+const duration =
+2+Math.random()*2;
+
+if(i%2===0){
+
+piece.style.left="0px";
+piece.style.bottom="0px";
+
+piece.style.animation=
+`cannonLeft ${duration}s ease-out forwards`;
+
+}else{
+
+piece.style.right="0px";
+piece.style.bottom="0px";
+
+piece.style.animation=
+`cannonRight ${duration}s ease-out forwards`;
+
+}
+
+document.body.appendChild(piece);
+
+setTimeout(()=>{
+piece.remove();
+},5000);
+
+}
 
 }
 
