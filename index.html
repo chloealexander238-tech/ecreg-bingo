@@ -2,425 +2,439 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Economic Regulation Bingo</title>
 
 <style>
 
 :root{
---green:#11873D;
---darkgreen:#064D42;
---blue:#0032A0;
---light:#E5E1E6;
+    --green:#11873D;
+    --darkgreen:#064D42;
+    --blue:#0032A0;
+    --light:#E5E1E6;
 }
 
 *{
-box-sizing:border-box;
-margin:0;
-padding:0;
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
 body{
-font-family:Arial,sans-serif;
-background:var(--light);
-padding:12px;
-color:var(--darkgreen);
+    font-family:Arial,sans-serif;
+    background:var(--light);
+    color:var(--darkgreen);
+    padding:12px;
 }
 
 h1{
-text-align:center;
-margin-bottom:8px;
+    text-align:center;
+    margin-bottom:8px;
 }
 
 .subtitle{
-text-align:center;
-margin-bottom:16px;
-line-height:1.4;
+    text-align:center;
+    margin-bottom:18px;
+    line-height:1.4;
 }
 
 #banner{
-display:none;
-background:var(--blue);
-color:white;
-padding:16px;
-border-radius:10px;
-text-align:center;
-font-size:1.3rem;
-font-weight:bold;
-margin-bottom:15px;
+    display:none;
+    background:var(--blue);
+    color:white;
+    padding:16px;
+    border-radius:12px;
+    text-align:center;
+    font-size:1.4rem;
+    font-weight:bold;
+    margin-bottom:16px;
 }
 
 .board{
-display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:8px;
-max-width:800px;
-margin:auto;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+    max-width:900px;
+    margin:auto;
 }
 
 .square{
-background:white;
-border:2px solid var(--darkgreen);
-border-radius:10px;
-min-height:75px;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding:6px;
-font-weight:bold;
-cursor:pointer;
-user-select:none;
-transition:.2s;
+    background:white;
+    border:2px solid var(--darkgreen);
+    border-radius:10px;
+    min-height:75px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:6px;
+    font-weight:bold;
+    cursor:pointer;
+    user-select:none;
+    transition:.2s;
+}
+
+.square:hover{
+    transform:scale(1.03);
 }
 
 .square.selected{
-background:var(--green);
-color:white;
-border-color:var(--green);
+    background:var(--green);
+    color:white;
+    border-color:var(--green);
 }
 
 .square.winning{
-background:var(--blue)!important;
-color:white!important;
-border-color:var(--blue)!important;
+    background:var(--blue) !important;
+    border-color:var(--blue) !important;
+    color:white !important;
 }
 
 @media(max-width:600px){
 
-.square{
-min-height:65px;
-font-size:.72rem;
-}
+    .square{
+        min-height:65px;
+        font-size:0.72rem;
+    }
+
+    h1{
+        font-size:1.6rem;
+    }
 
 }
+
+/* COOL CONFETTI */
 
 .confetti{
-position:fixed;
-pointer-events:none;
-z-index:9999;
+    position:fixed;
+    top:-20px;
+    z-index:9999;
+    pointer-events:none;
 }
 
-@keyframes cannonLeft{
-0%{
-transform:translate(0,0) rotate(0deg);
-opacity:1;
-}
-100%{
-transform:
-translate(
-calc(300px + var(--drift) * 400px),
-calc(-250px + var(--drop) * 700px)
-)
-rotate(1080deg);
-opacity:0;
-}
+@keyframes blastLeft{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(0deg);
+        opacity:1;
+    }
+
+    100%{
+        transform:
+            translate(
+                calc(200px + var(--drift) * 1200px),
+                calc(250px + var(--drop) * 1200px)
+            )
+            rotate(1800deg);
+
+        opacity:0;
+    }
 }
 
-@keyframes cannonRight{
-0%{
-transform:translate(0,0) rotate(0deg);
-opacity:1;
-}
-100%{
-transform:
-translate(
-calc(-300px - var(--drift) * 400px),
-calc(-250px + var(--drop) * 700px)
-)
-rotate(-1080deg);
-opacity:0;
-}
+@keyframes blastRight{
+
+    0%{
+        transform:
+            translate(0,0)
+            rotate(0deg);
+        opacity:1;
+    }
+
+    100%{
+        transform:
+            translate(
+                calc(-200px - var(--drift) * 1200px),
+                calc(250px + var(--drop) * 1200px)
+            )
+            rotate(-1800deg);
+
+        opacity:0;
+    }
 }
 
 </style>
 </head>
+
 <body>
 
 <h1>Economic Regulation Bingo</h1>
 
 <p class="subtitle">
-Complete a row, column or diagonal.<br>
-⭐ Strategic Bingo: mark GN26, WAPC, EN29, FTA and GNT.
+Complete a row, column or diagonal to win.
 </p>
 
-<div id="banner"></div>
+<div id="banner">
+🎉 BINGO! 🎉
+</div>
 
 <div id="board" class="board"></div>
 
 <script>
 
-const REQUIRED = [
-"GN26",
-"WAPC",
-"EN29",
-"FTA",
-"GNT"
+const REQUIRED_TERMS = [
+    "GN26",
+    "WAPC",
+    "EN29",
+    "FTA",
+    "GNT"
 ];
 
-const OPTIONAL = [
-"PTRM",
-"WACC",
-"STPIS",
-"NEM",
-"AEMO",
-"DNSP",
-"AIO",
-"CESS",
-"NER",
-"DMIS",
-"RAB",
-"EBSS",
-"RFM",
-"NGR",
-"ECRC",
-"CCP",
-"NZ45",
-"OPEX",
-"CAPEX",
-"CAB",
-"ENA",
-"IEP",
-"NGL",
-"NGO",
-"RIN",
-"TVM",
-"RSA",
-"RSP",
-"SAIDI",
-"NEO",
-"TSS",
-"SAIFI",
-"EFM",
-"F&A",
-"CAM",
-"CPI",
-"ESOO",
-"FOC",
-"ICRC",
-"DMO",
-"SSO",
-"UNFT"
+const OPTIONAL_TERMS = [
+    "PTRM",
+    "WACC",
+    "STPIS",
+    "NEM",
+    "AEMO",
+    "DNSP",
+    "AIO",
+    "CESS",
+    "NER",
+    "DMIS",
+    "RAB",
+    "EBSS",
+    "RFM",
+    "NGR",
+    "ECRC",
+    "CCP",
+    "NZ45",
+    "OPEX",
+    "CAPEX",
+    "CAB",
+    "ENA",
+    "IEP",
+    "NGL",
+    "NGO",
+    "RIN",
+    "TVM",
+    "RSA",
+    "RSP",
+    "SAIDI",
+    "NEO",
+    "TSS",
+    "SAIFI",
+    "EFM",
+    "F&A",
+    "CAM",
+    "CPI",
+    "ESOO",
+    "FOC",
+    "ICRC",
+    "DMO",
+    "SSO",
+    "UNFT"
 ];
 
 let celebrated = false;
 
-function shuffle(arr){
+function shuffle(array){
 
-const a=[...arr];
+    const arr = [...array];
 
-for(let i=a.length-1;i>0;i--){
+    for(let i=arr.length-1;i>0;i--){
 
-const j=Math.floor(Math.random()*(i+1));
+        const j =
+            Math.floor(Math.random()*(i+1));
 
-[a[i],a[j]]=[a[j],a[i]];
+        [arr[i],arr[j]] =
+            [arr[j],arr[i]];
+    }
+
+    return arr;
 }
 
-return a;
-}
+const extraTerms =
+    shuffle(OPTIONAL_TERMS)
+    .slice(0,20);
 
-const extras =
-shuffle(OPTIONAL).slice(0,20);
-
-const card =
-shuffle([
-...REQUIRED,
-...extras
-]);
+const cardTerms =
+    shuffle([
+        ...REQUIRED_TERMS,
+        ...extraTerms
+    ]);
 
 const board =
-document.getElementById("board");
+    document.getElementById("board");
 
-card.forEach(term=>{
+cardTerms.forEach(term=>{
 
-const square =
-document.createElement("div");
+    const square =
+        document.createElement("div");
 
-square.className="square";
-square.textContent=term;
+    square.className = "square";
+    square.textContent = term;
 
-square.onclick=()=>{
-square.classList.toggle("selected");
-checkBingo();
-};
+    square.addEventListener("click",()=>{
 
-board.appendChild(square);
+        square.classList.toggle("selected");
+
+        checkBingo();
+
+    });
+
+    board.appendChild(square);
 
 });
 
 function checkBingo(){
 
-const squares =
-[...document.querySelectorAll(".square")];
+    const squares =
+        [...document.querySelectorAll(".square")];
 
-squares.forEach(s=>
-s.classList.remove("winning")
-);
+    squares.forEach(square=>
+        square.classList.remove("winning")
+    );
 
-const selected =
-squares.map(square =>
-square.classList.contains("selected")
-);
+    const selected =
+        squares.map(square=>
+            square.classList.contains("selected")
+        );
 
-const lines=[];
+    const lines = [];
 
-for(let r=0;r<5;r++){
+    for(let row=0;row<5;row++){
 
-lines.push([
-r*5,
-r*5+1,
-r*5+2,
-r*5+3,
-r*5+4
-]);
-}
+        lines.push([
+            row*5,
+            row*5+1,
+            row*5+2,
+            row*5+3,
+            row*5+4
+        ]);
+    }
 
-for(let c=0;c<5;c++){
+    for(let col=0;col<5;col++){
 
-lines.push([
-c,
-c+5,
-c+10,
-c+15,
-c+20
-]);
-}
+        lines.push([
+            col,
+            col+5,
+            col+10,
+            col+15,
+            col+20
+        ]);
+    }
 
-lines.push([0,6,12,18,24]);
-lines.push([4,8,12,16,20]);
+    lines.push([0,6,12,18,24]);
+    lines.push([4,8,12,16,20]);
 
-let bingoLine=null;
+    let winningLine = null;
 
-for(const line of lines){
+    for(const line of lines){
 
-if(line.every(i=>selected[i])){
+        if(
+            line.every(
+                index => selected[index]
+            )
+        ){
 
-bingoLine=line;
-break;
-}
-}
+            winningLine = line;
+            break;
+        }
+    }
 
-const selectedTerms =
-squares
-.filter(s=>s.classList.contains("selected"))
-.map(s=>s.textContent);
+    const banner =
+        document.getElementById("banner");
 
-const strategicWin =
-REQUIRED.every(term =>
-selectedTerms.includes(term)
-);
+    if(winningLine){
 
-const banner =
-document.getElementById("banner");
+        banner.style.display="block";
 
-if(bingoLine){
+        winningLine.forEach(index=>{
 
-banner.style.display="block";
-banner.innerHTML="🎉 BINGO! 🎉";
+            squares[index]
+                .classList
+                .add("winning");
 
-bingoLine.forEach(i=>{
-squares[i].classList.add("winning");
-});
+        });
 
-if(!celebrated){
+        if(!celebrated){
 
-launchConfetti();
-celebrated=true;
+            launchConfetti();
 
-}
+            celebrated = true;
+        }
 
-return;
-}
+    }else{
 
-if(strategicWin){
-
-banner.style.display="block";
-banner.innerHTML="⭐ STRATEGIC BINGO! ⭐";
-
-if(!celebrated){
-
-launchConfetti();
-celebrated=true;
-
-}
-
-return;
-}
-
-banner.style.display="none";
-celebrated=false;
-
+        banner.style.display="none";
+        celebrated = false;
+    }
 }
 
 function launchConfetti(){
 
-const colours=[
-"#11873D",
-"#064D42",
-"#0032A0",
-"#FFFFFF"
-];
+    const colours = [
+        "#11873D",
+        "#064D42",
+        "#0032A0",
+        "#FFFFFF",
+        "#FFD700"
+    ];
 
-for(let i=0;i<200;i++){
+    for(let i=0;i<250;i++){
 
-const piece =
-document.createElement("div");
+        const piece =
+            document.createElement("div");
 
-piece.className="confetti";
+        piece.className = "confetti";
 
-piece.style.width =
-(6+Math.random()*10)+"px";
+        piece.style.width =
+            (4 + Math.random()*10) + "px";
 
-piece.style.height =
-(8+Math.random()*16)+"px";
+        piece.style.height =
+            (8 + Math.random()*16) + "px";
 
-piece.style.background =
-colours[
-Math.floor(
-Math.random()*colours.length
-)
-];
+        piece.style.background =
+            colours[
+                Math.floor(
+                    Math.random()*colours.length
+                )
+            ];
 
-piece.style.setProperty(
-"--drift",
-Math.random()
-);
+        piece.style.borderRadius =
+            Math.random() > 0.5
+                ? "50%"
+                : "2px";
 
-piece.style.setProperty(
-"--drop",
-Math.random()
-);
+        piece.style.setProperty(
+            "--drift",
+            Math.random()
+        );
 
-const duration =
-2+Math.random()*2;
+        piece.style.setProperty(
+            "--drop",
+            Math.random()
+        );
 
-if(i%2===0){
+        const duration =
+            3 + Math.random()*3;
 
-piece.style.left="0px";
-piece.style.bottom="0px";
+        if(i % 2 === 0){
 
-piece.style.animation=
-`cannonLeft ${duration}s ease-out forwards`;
+            piece.style.left =
+                Math.random()*100 + "px";
 
-}else{
+            piece.style.animation =
+                `blastLeft ${duration}s ease-out forwards`;
 
-piece.style.right="0px";
-piece.style.bottom="0px";
+        }else{
 
-piece.style.animation=
-`cannonRight ${duration}s ease-out forwards`;
+            piece.style.right =
+                Math.random()*100 + "px";
 
-}
+            piece.style.animation =
+                `blastRight ${duration}s ease-out forwards`;
 
-document.body.appendChild(piece);
+        }
 
-setTimeout(()=>{
-piece.remove();
-},5000);
+        document.body.appendChild(piece);
 
-}
-
+        setTimeout(()=>{
+            piece.remove();
+        },7000);
+    }
 }
 
 </script>
